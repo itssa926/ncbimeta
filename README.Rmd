@@ -18,37 +18,101 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of ncbimeta is to ...
+ncbimeta provides tools to clean, standardise, and prepare NCBI / GenBank
+metadata for phylogenetic analyses.
+The package focuses on producing tree-ready, reproducible metadata
+from heterogeneous and messy NCBI records.
 
 ## Installation
 
 You can install the development version of ncbimeta like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install.packages("devtools")
+devtools::install_github("itssa926/ncbimeta")
+```
+## Main Workflow
+```{r example1}
+library(ncbimeta)
+
+toy_df <- data.frame(
+  accession = c("ABC123", "XYZ999"),
+  collection_date = c("['2020']", "2020-07-03"),
+  location = c("['China: Guangdong']", "Viet Nam"),
+  host = c("human", "mosquito"),
+  stringsAsFactors = FALSE
+)
+
+meta_std <- standardize_ncbi_metadata(
+  toy_df,
+  date_col    = "collection_date",
+  country_col = "location",
+  label_cols  = tidyselect::all_of(c("accession", "host", "date_std", "country_tailored")),
+  label_col_name = "tip_label"
+)
+
+meta_std[, c("accession", "date_std", "country_std", "country_tailored", "tip_label")]
+```
+
+```markdown
+This single call will:
+
+1. Clean bracket wrappers across metadata
+2. Standardise collection dates
+3. Standardise country names and ISO codes
+4. Generate tree-safe country labels
+5. Build a tree tip label
+Default label format:
+```
+
+``` r
+accession|host|date_std|country_tailored
 ```
 
 ## Example
+Cleaning Utilities:
+```{r example2}
+toy_meta <- data.frame(
+  date    = c("['2020-01-02']", "None"),
+  country = c("['China: Guangdong']", "Viet Nam"),
+  stringsAsFactors = FALSE
+)
 
-This is a basic example which shows you how to solve a common problem:
-
-```{r example}
-library(ncbimeta)
-## basic example code
+clean_field("['2020-01-02']")
+clean_metadata_brackets(toy_meta)
 ```
+Removes NCBI-style wrappers such as ['xxx'], trims whitespace, and converts "None"/"" to NA.
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
+Date Standardisation:
+```{r example3}
+standardize_date(c("['2020']", "2020-07", "2020-07-03", "None"))
 ```
+Returns standardised dates with explicit granularity
+(year, month, day, or unknown).
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
+Country Standardisation:
+```{r example4}
+standardize_country(c("['China: Guangdong']", "Viet Nam", "None"))
 ```
+Returns cleaned country names and ISO2/ISO3 codes.
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+Tree-safe String Sanitisation:
+```{r example5}
+make_tree_safe("São Tomé and Príncipe")
+# "Sao_Tome_and_Principe"
+```
+Applicable to any character column (country, host, strain, etc.).
+
+Custom Tree Labels:
+```{r example6}
+build_tree_label(
+  meta_std,
+  cols = c(accession, date_std, country_tailored),
+  new_col = "tip_label"
+)
+```
+Fully configurable
+
+## Author
+Sayuan Wang
+(for internal use)
