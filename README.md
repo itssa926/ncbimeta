@@ -52,20 +52,21 @@ meta_std[, c("accession", "date_std", "country_std", "country_tailored", "tip_la
 #> # A tibble: 2 × 5
 #>   accession date_std   country_std country_tailored tip_label                   
 #>   <chr>     <chr>      <chr>       <chr>            <chr>                       
-#> 1 ABC123    2020-??-?? China       China            ABC123|human|2020-_-|China  
+#> 1 ABC123    2020-??-?? China       China            ABC123|human|2020|China     
 #> 2 XYZ999    2020-07-03 Vietnam     Vietnam          XYZ999|mosquito|2020-07-03|…
 ```
 
-``` markdown
 This single call will:
 
+``` markdown
 1. Clean bracket wrappers across metadata
 2. Standardise collection dates
 3. Standardise country names and ISO codes
 4. Generate tree-safe country labels
 5. Build a tree tip label
-Default label format:
 ```
+
+Default label format:
 
 ``` r
 accession|host|date_std|country_tailored

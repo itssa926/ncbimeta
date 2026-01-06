@@ -53,18 +53,15 @@ meta_std <- standardize_ncbi_metadata(
 
 meta_std[, c("accession", "date_std", "country_std", "country_tailored", "tip_label")]
 ```
-
-```markdown
 This single call will:
-
+```markdown
 1. Clean bracket wrappers across metadata
 2. Standardise collection dates
 3. Standardise country names and ISO codes
 4. Generate tree-safe country labels
 5. Build a tree tip label
-Default label format:
 ```
-
+Default label format:
 ``` r
 accession|host|date_std|country_tailored
 ```
